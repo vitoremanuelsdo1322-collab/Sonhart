@@ -1,112 +1,117 @@
 import { useState, useEffect } from "react";
 import {
-  Menu,
-  X,
-  Phone,
-  Mail,
-  MapPin,
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Paintbrush,
-  Shield,
-  Layers,
-  Droplets,
-  Palette,
-  Building2,
-  Eye,
-  Wrench,
-  Clock,
-  Award,
-  Users,
-  ChevronDown,
-  Send,
-  Instagram,
-  Facebook,
-  Sparkles,
+  Menu, X, Phone, Mail, ArrowRight, CheckCircle,
+  Paintbrush, Layers, Sparkles, Clock, Award,
+  ChevronDown, Send, Instagram, MessageCircle,
+  Camera, ExternalLink, Palette, Star, Droplets,
+  Building2, Play, Grid3X3, BookOpen,
 } from "lucide-react";
 
+// ─── DADOS REAIS DA EMPRESA ────────────────────────────────────────────────────
+const WA_DIRECT  = "https://wa.me/558788226113";
+const WA_CATALOG = "https://wa.me/c/558788226113";
+const IG_URL     = "https://www.instagram.com/sonhartpinturasoficial/";
+const EMAIL_ADDR = "sonhartpinturasoficial@outlook.com";
+const PHONE_DISP = "+55 87 8822-6113";
+
 type Page =
-  | "home"
-  | "interior"
-  | "exterior"
-  | "decorativo"
-  | "impermeabilizacao"
-  | "texturas"
-  | "vernizes"
-  | "industrial"
-  | "consultoria"
-  | "contato";
+  | "home" | "sobre" | "servicos" | "efeitos"
+  | "epoxi" | "galeria" | "portfolio" | "insta"
+  | "orcamento" | "contato";
 
 const NAV_ITEMS: { id: Page; label: string }[] = [
-  { id: "home", label: "Início" },
-  { id: "interior", label: "P. Interior" },
-  { id: "exterior", label: "P. Exterior" },
-  { id: "decorativo", label: "Acabamentos" },
-  { id: "impermeabilizacao", label: "Impermeab." },
-  { id: "texturas", label: "Texturas" },
-  { id: "vernizes", label: "Vernizes" },
-  { id: "industrial", label: "Industrial" },
-  { id: "consultoria", label: "Consultoria" },
-  { id: "contato", label: "Contato" },
+  { id: "home",      label: "Início"    },
+  { id: "sobre",     label: "Sobre"     },
+  { id: "servicos",  label: "Serviços"  },
+  { id: "efeitos",   label: "Efeitos"   },
+  { id: "epoxi",     label: "Epóxi"     },
+  { id: "galeria",   label: "Galeria"   },
+  { id: "portfolio", label: "Portfólio" },
+  { id: "insta",     label: "Instagram" },
+  { id: "orcamento", label: "Orçamento" },
+  { id: "contato",   label: "Contato"   },
 ];
 
-const SERVICES: { id: Page; label: string; icon: React.ReactNode; color: string; desc: string }[] = [
-  { id: "interior", label: "Pintura Interior", icon: <Paintbrush size={28} />, color: "#C41E3A", desc: "Ambientes renovados com cores que inspiram" },
-  { id: "exterior", label: "Pintura Exterior", icon: <Building2 size={28} />, color: "#E86B1F", desc: "Proteção e beleza para a fachada da sua obra" },
-  { id: "decorativo", label: "Acabamentos Decorativos", icon: <Sparkles size={28} />, color: "#B5191A", desc: "Efeitos especiais e técnicas artesanais" },
-  { id: "impermeabilizacao", label: "Impermeabilização", icon: <Droplets size={28} />, color: "#E05010", desc: "Proteção total contra umidade e infiltrações" },
-  { id: "texturas", label: "Texturas & Grafiato", icon: <Layers size={28} />, color: "#C85A00", desc: "Superfícies com personalidade e profundidade" },
-  { id: "vernizes", label: "Vernizes & Esmaltes", icon: <Eye size={28} />, color: "#D4181B", desc: "Acabamentos de alto brilho e durabilidade" },
-  { id: "industrial", label: "Pintura Industrial", icon: <Wrench size={28} />, color: "#A01530", desc: "Soluções técnicas para grandes estruturas" },
-  { id: "consultoria", label: "Consultoria de Cores", icon: <Palette size={28} />, color: "#F5A000", desc: "Harmonia cromática com orientação especializada" },
-];
+const SERVICOS = [
+  { id: "efeitos",  label: "Cimento Queimado",        icon: <Layers size={24}/>,    color: "#C41E3A", desc: "Acabamento moderno, elegante e sofisticado" },
+  { id: "efeitos",  label: "Efeito Velvet",            icon: <Sparkles size={24}/>,  color: "#E86B1F", desc: "Textura aveludada com aparência de luxo" },
+  { id: "epoxi",    label: "Pintura em Epóxi",         icon: <Droplets size={24}/>,  color: "#B5191A", desc: "Alta resistência e brilho impecável" },
+  { id: "efeitos",  label: "Pinturas Decorativas",     icon: <Palette size={24}/>,   color: "#C85A00", desc: "Efeitos especiais para ambientes únicos" },
+  { id: "efeitos",  label: "Efeito Mármore",           icon: <Star size={24}/>,      color: "#D4181B", desc: "Sofisticação com aparência de mármore real" },
+  { id: "servicos", label: "Pinturas de Alto Padrão",  icon: <Award size={24}/>,     color: "#A01530", desc: "Acabamento impecável com equipamentos modernos" },
+  { id: "servicos", label: "Pintura de Casas",         icon: <Building2 size={24}/>, color: "#E05010", desc: "Transformação completa do seu lar" },
+] as const;
 
-function Navbar({ current, onNavigate }: { current: Page; onNavigate: (p: Page) => void }) {
-  const [open, setOpen] = useState(false);
+// ─── COMPONENTE: BOTÃO WHATSAPP FLUTUANTE ──────────────────────────────────────
+function WAFloat() {
+  return (
+    <a
+      href={WA_DIRECT}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+      style={{ background: "#25D366", color: "#fff", boxShadow: "0 4px 20px rgba(37,211,102,0.5)" }}
+    >
+      <MessageCircle size={20} fill="white" />
+      <span className="hidden sm:inline">WhatsApp</span>
+    </a>
+  );
+}
+
+// ─── COMPONENTE: PLACEHOLDER DE FOTO ──────────────────────────────────────────
+function PhotoSlot({ label, tall }: { label?: string; tall?: boolean }) {
+  return (
+    <div
+      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed w-full"
+      style={{ minHeight: tall ? "280px" : "200px", background: "#F9F0E8", borderColor: "rgba(196,30,58,0.25)" }}
+    >
+      <Camera size={26} style={{ color: "#C41E3A", opacity: 0.4 }} />
+      <span className="text-xs font-medium text-center px-3 max-w-[160px]" style={{ color: "#A06040" }}>
+        {label ?? "Adicione sua foto aqui"}
+      </span>
+    </div>
+  );
+}
+
+// ─── COMPONENTE: NAVBAR ────────────────────────────────────────────────────────
+function Navbar({ current, onNav }: { current: Page; onNav: (p: Page) => void }) {
+  const [open, setOpen]       = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", handler);
-    return () => window.removeEventListener("scroll", handler);
+    const h = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
   }, []);
+
+  const go = (p: Page) => { onNav(p); setOpen(false); };
 
   return (
     <nav
-      style={{
-        background: scrolled ? "rgba(28, 8, 0, 0.97)" : "#1C0800",
-        transition: "background 0.3s",
-        fontFamily: "'Nunito Sans', sans-serif",
-      }}
-      className="fixed top-0 left-0 right-0 z-50 shadow-lg"
+      className="fixed top-0 left-0 right-0 z-40 shadow-lg"
+      style={{ background: scrolled ? "rgba(28,8,0,0.97)" : "#1C0800", transition: "background .3s", fontFamily: "'Nunito Sans', sans-serif" }}
     >
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         {/* Logo */}
-        <button
-          onClick={() => { onNavigate("home"); setOpen(false); }}
-          className="flex items-center gap-2 focus:outline-none"
-        >
-          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
-            <Paintbrush size={18} color="white" />
+        <button onClick={() => go("home")} className="flex items-center gap-2 focus:outline-none shrink-0">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
+            <Paintbrush size={15} color="white" />
           </div>
-          <span
-            style={{ fontFamily: "'Anton', sans-serif", letterSpacing: "0.08em", color: "#F5C842", fontSize: "1.5rem" }}
-          >
+          <span style={{ fontFamily: "'Anton', sans-serif", letterSpacing: ".06em", color: "#F5C842", fontSize: "1.25rem" }}>
             SONHART
           </span>
         </button>
 
-        {/* Desktop Nav */}
-        <div className="hidden xl:flex items-center gap-1">
-          {NAV_ITEMS.map((item) => (
+        {/* Desktop nav */}
+        <div className="hidden xl:flex items-center gap-0.5">
+          {NAV_ITEMS.map(item => (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className="px-3 py-1.5 rounded text-sm transition-all duration-200 font-semibold"
+              onClick={() => go(item.id)}
+              className="px-2.5 py-1.5 rounded text-xs font-semibold transition-all"
               style={{
-                color: current === item.id ? "#F5C842" : "#f0d0c0",
-                background: current === item.id ? "rgba(196,30,58,0.25)" : "transparent",
+                color:  current === item.id ? "#F5C842" : "#f0d0c0",
+                background: current === item.id ? "rgba(196,30,58,.25)" : "transparent",
                 borderBottom: current === item.id ? "2px solid #C41E3A" : "2px solid transparent",
               }}
             >
@@ -115,17 +120,13 @@ function Navbar({ current, onNavigate }: { current: Page; onNavigate: (p: Page) 
           ))}
         </div>
 
-        {/* Phone + mobile toggle */}
-        <div className="flex items-center gap-3">
-          <a href="tel:+5511999999999" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F5C842" }}>
-            <Phone size={14} />
-            (11) 99999-9999
+        {/* Right: phone + hamburger */}
+        <div className="flex items-center gap-3 shrink-0">
+          <a href={WA_DIRECT} target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1.5 text-xs font-bold" style={{ color: "#25D366" }}>
+            <MessageCircle size={13} />
+            {PHONE_DISP}
           </a>
-          <button
-            className="xl:hidden p-2 rounded"
-            style={{ color: "#F5C842" }}
-            onClick={() => setOpen(!open)}
-          >
+          <button className="xl:hidden p-2" style={{ color: "#F5C842" }} onClick={() => setOpen(!open)}>
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -133,131 +134,110 @@ function Navbar({ current, onNavigate }: { current: Page; onNavigate: (p: Page) 
 
       {/* Mobile menu */}
       {open && (
-        <div style={{ background: "#1C0800", borderTop: "1px solid rgba(196,30,58,0.3)" }} className="xl:hidden px-4 pb-4">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => { onNavigate(item.id); setOpen(false); }}
-              className="w-full text-left py-3 px-2 text-sm font-semibold border-b"
-              style={{
-                color: current === item.id ? "#F5C842" : "#f0d0c0",
-                borderColor: "rgba(196,30,58,0.2)",
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="xl:hidden px-4 pb-4" style={{ background: "#1C0800", borderTop: "1px solid rgba(196,30,58,.3)" }}>
+          <div className="grid grid-cols-2 gap-1 pt-2">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.id}
+                onClick={() => go(item.id)}
+                className="text-left py-2.5 px-3 text-sm font-semibold rounded-lg"
+                style={{ color: current === item.id ? "#F5C842" : "#f0d0c0", background: current === item.id ? "rgba(196,30,58,.2)" : "transparent" }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <a href={WA_DIRECT} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold" style={{ background: "#25D366", color: "#fff" }}>
+            <MessageCircle size={16} /> Chamar no WhatsApp
+          </a>
         </div>
       )}
     </nav>
   );
 }
 
-function Footer({ onNavigate }: { onNavigate: (p: Page) => void }) {
+// ─── COMPONENTE: RODAPÉ ────────────────────────────────────────────────────────
+function Footer({ onNav }: { onNav: (p: Page) => void }) {
   return (
     <footer style={{ background: "#0F0400", fontFamily: "'Nunito Sans', sans-serif" }} className="text-white">
-      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 sm:grid-cols-3 gap-10">
+        {/* Brand */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
-              <Paintbrush size={18} color="white" />
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
+              <Paintbrush size={15} color="white" />
             </div>
-            <span style={{ fontFamily: "'Anton', sans-serif", letterSpacing: "0.08em", color: "#F5C842", fontSize: "1.5rem" }}>SONHART</span>
+            <span style={{ fontFamily: "'Anton', sans-serif", letterSpacing: ".06em", color: "#F5C842", fontSize: "1.2rem" }}>SONHART</span>
           </div>
           <p className="text-sm leading-relaxed mb-4" style={{ color: "#c0a090" }}>
-            Pinturas de alto padrão com qualidade profissional e compromisso com a excelência. Transformamos espaços em obras de arte.
+            Sonhart Pinturas Mecanizadas é especializada em pinturas de alto padrão. Com equipamentos modernos entregamos sempre o melhor acabamento.
           </p>
-          <div className="flex gap-3">
-            <a href="#" className="w-9 h-9 rounded-full flex items-center justify-center transition-colors" style={{ background: "rgba(196,30,58,0.3)" }}>
+          <div className="flex gap-2">
+            <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(196,30,58,.3)" }}>
               <Instagram size={16} color="#F5C842" />
             </a>
-            <a href="#" className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(196,30,58,0.3)" }}>
-              <Facebook size={16} color="#F5C842" />
+            <a href={WA_DIRECT} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(37,211,102,.2)" }}>
+              <MessageCircle size={16} color="#25D366" />
             </a>
           </div>
         </div>
 
+        {/* Pages */}
         <div>
-          <h4 className="font-bold mb-4 text-sm tracking-wider uppercase" style={{ color: "#F5C842" }}>Serviços</h4>
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4">
-            {SERVICES.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => onNavigate(s.id)}
-                className="text-left text-sm hover:text-white transition-colors"
-                style={{ color: "#c0a090" }}
-              >
-                {s.label}
+          <h4 className="font-bold mb-4 text-xs tracking-wider uppercase" style={{ color: "#F5C842" }}>Páginas</h4>
+          <div className="grid grid-cols-2 gap-y-2 gap-x-3">
+            {NAV_ITEMS.map(n => (
+              <button key={n.id} onClick={() => onNav(n.id)} className="text-left text-sm hover:text-white transition-colors" style={{ color: "#c0a090" }}>
+                {n.label}
               </button>
             ))}
           </div>
         </div>
 
+        {/* Contact */}
         <div>
-          <h4 className="font-bold mb-4 text-sm tracking-wider uppercase" style={{ color: "#F5C842" }}>Contato</h4>
+          <h4 className="font-bold mb-4 text-xs tracking-wider uppercase" style={{ color: "#F5C842" }}>Contato</h4>
           <div className="space-y-3">
+            <a href={WA_DIRECT} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-white transition-colors" style={{ color: "#c0a090" }}>
+              <MessageCircle size={14} style={{ color: "#25D366" }} className="shrink-0" /> {PHONE_DISP}
+            </a>
+            <a href={`mailto:${EMAIL_ADDR}`} className="flex items-center gap-2 text-sm hover:text-white transition-colors" style={{ color: "#c0a090" }}>
+              <Mail size={14} style={{ color: "#C41E3A" }} className="shrink-0" /> {EMAIL_ADDR}
+            </a>
+            <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-white transition-colors" style={{ color: "#c0a090" }}>
+              <Instagram size={14} style={{ color: "#C41E3A" }} className="shrink-0" /> @sonhartpinturasoficial
+            </a>
             <div className="flex items-start gap-2 text-sm" style={{ color: "#c0a090" }}>
-              <Phone size={14} className="mt-0.5 shrink-0" style={{ color: "#C41E3A" }} />
-              (11) 99999-9999
-            </div>
-            <div className="flex items-start gap-2 text-sm" style={{ color: "#c0a090" }}>
-              <Mail size={14} className="mt-0.5 shrink-0" style={{ color: "#C41E3A" }} />
-              contato@sonhart.com.br
-            </div>
-            <div className="flex items-start gap-2 text-sm" style={{ color: "#c0a090" }}>
-              <MapPin size={14} className="mt-0.5 shrink-0" style={{ color: "#C41E3A" }} />
-              Rua das Tintas, 245 — São Paulo, SP
-            </div>
-            <div className="flex items-start gap-2 text-sm" style={{ color: "#c0a090" }}>
-              <Clock size={14} className="mt-0.5 shrink-0" style={{ color: "#C41E3A" }} />
-              Seg–Sex: 8h–18h | Sáb: 8h–13h
+              <Clock size={14} style={{ color: "#C41E3A" }} className="mt-0.5 shrink-0" />
+              <span>Seg–Sex: 24h | Sáb e Dom: Fechado</span>
             </div>
           </div>
         </div>
       </div>
-      <div style={{ borderTop: "1px solid rgba(196,30,58,0.2)", color: "#7a4030" }} className="text-center py-5 text-xs">
-        © {new Date().getFullYear()} SONHART Pinturas. Todos os direitos reservados.
+      <div className="text-center py-4 text-xs border-t" style={{ borderColor: "rgba(196,30,58,.2)", color: "#7a4030" }}>
+        © {new Date().getFullYear()} Sonhart Pinturas Mecanizadas · Israel Freitas
       </div>
     </footer>
   );
 }
 
-function ServiceCard({ service, onNavigate }: { service: typeof SERVICES[0]; onNavigate: (p: Page) => void }) {
-  const [hovered, setHovered] = useState(false);
+// ─── BOTÃO WHATSAPP PADRÃO ─────────────────────────────────────────────────────
+function WABtn({ label = "Solicitar orçamento pelo WhatsApp", catalog }: { label?: string; catalog?: boolean }) {
   return (
-    <button
-      onClick={() => onNavigate(service.id)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="text-left p-6 rounded-xl transition-all duration-300 group"
-      style={{
-        background: hovered ? service.color : "#ffffff",
-        boxShadow: hovered ? `0 12px 40px ${service.color}40` : "0 2px 16px rgba(0,0,0,0.07)",
-        transform: hovered ? "translateY(-4px)" : "none",
-        border: `2px solid ${hovered ? service.color : "rgba(196,30,58,0.12)"}`,
-      }}
+    <a
+      href={catalog ? WA_CATALOG : WA_DIRECT}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm transition-all hover:scale-105 active:scale-95"
+      style={{ background: "#25D366", color: "#fff", boxShadow: "0 6px 20px rgba(37,211,102,.4)" }}
     >
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300"
-        style={{ background: hovered ? "rgba(255,255,255,0.2)" : `${service.color}15`, color: hovered ? "#fff" : service.color }}
-      >
-        {service.icon}
-      </div>
-      <h3 className="font-bold text-base mb-2 transition-colors duration-300" style={{ fontFamily: "'Rajdhani', sans-serif", color: hovered ? "#fff" : "#1C0800", fontSize: "1.1rem" }}>
-        {service.label}
-      </h3>
-      <p className="text-sm transition-colors duration-300" style={{ color: hovered ? "rgba(255,255,255,0.85)" : "#7A4030" }}>
-        {service.desc}
-      </p>
-      <div className="flex items-center gap-1 mt-4 text-xs font-semibold transition-colors duration-300" style={{ color: hovered ? "#F5C842" : service.color }}>
-        Ver serviço <ArrowRight size={13} />
-      </div>
-    </button>
+      <MessageCircle size={17} fill="white" /> {label}
+    </a>
   );
 }
 
-// ─── PAGE: HOME ────────────────────────────────────────────────────────────────
-function PageHome({ onNavigate }: { onNavigate: (p: Page) => void }) {
+// ─── PÁGINA 1: INÍCIO ──────────────────────────────────────────────────────────
+function PageHome({ onNav }: { onNav: (p: Page) => void }) {
   return (
     <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
       {/* Hero */}
@@ -265,87 +245,43 @@ function PageHome({ onNavigate }: { onNavigate: (p: Page) => void }) {
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1600&h=900&fit=crop&auto=format"
-            alt="Pintura profissional de interiores"
-            className="w-full h-full object-cover opacity-30"
+            alt="Pintura profissional de alto padrão"
+            className="w-full h-full object-cover"
+            style={{ opacity: .22 }}
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(196,30,58,0.7) 0%, rgba(28,8,0,0.95) 60%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(196,30,58,.65) 0%, rgba(28,8,0,.96) 60%)" }} />
         </div>
+        <div className="absolute top-0 right-0 w-56 h-28 rounded-bl-full opacity-60" style={{ background: "#C41E3A" }} />
+        <div className="absolute bottom-16 left-0 w-40 h-40 rounded-full opacity-15" style={{ background: "#F5C842" }} />
 
-        {/* Paint drip accent */}
-        <div className="absolute top-0 right-0 w-64 h-32 rounded-bl-full opacity-60" style={{ background: "#C41E3A" }} />
-        <div className="absolute top-0 right-32 w-20 h-20 rounded-full opacity-40" style={{ background: "#E86B1F" }} />
-        <div className="absolute bottom-20 left-0 w-48 h-48 rounded-full opacity-20" style={{ background: "#F5C842" }} />
-
-        <div className="relative max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 py-28 grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6" style={{ background: "rgba(245,200,66,0.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,0.3)" }}>
-              <Paintbrush size={12} />
-              Pinturas de Alto Padrão
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+              <Paintbrush size={12} /> Pinturas Mecanizadas de Alto Padrão
             </div>
-            <h1
-              className="text-white mb-6 leading-none"
-              style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(3rem, 7vw, 5.5rem)", letterSpacing: "0.02em" }}
-            >
-              TRANSFORMAMOS<br />
-              <span style={{ color: "#F5C842" }}>ESPAÇOS</span> EM<br />
-              OBRAS DE ARTE
+            <h1 className="text-white mb-5 leading-none" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.8rem,7vw,5.5rem)", letterSpacing: ".02em" }}>
+              SONHART<br />
+              <span style={{ color: "#F5C842" }}>PINTURAS</span><br />
+              MECANIZADAS
             </h1>
-            <p className="text-lg mb-8 max-w-lg leading-relaxed" style={{ color: "#f0c8b0" }}>
-              A SONHART oferece serviços de pintura residencial, comercial e industrial com qualidade incomparável e acabamentos que duram anos.
+            <p className="text-base mb-8 max-w-md leading-relaxed" style={{ color: "#f0c8b0" }}>
+              Especializados em pinturas de alto padrão. Com equipamentos modernos entregamos sempre o melhor acabamento aos nossos clientes.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-3">
+              <WABtn label="Solicitar orçamento" />
               <button
-                onClick={() => onNavigate("contato")}
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm transition-all hover:scale-105"
-                style={{ background: "#C41E3A", color: "#fff", boxShadow: "0 8px 24px rgba(196,30,58,0.5)" }}
+                onClick={() => onNav("portfolio")}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm border-2 transition-all hover:bg-white/10"
+                style={{ color: "#fff", borderColor: "rgba(255,255,255,.4)" }}
               >
-                Solicitar Orçamento <ArrowRight size={16} />
+                Ver nossos trabalhos
               </button>
-              <button
-                onClick={() => onNavigate("interior")}
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm border-2 transition-all hover:bg-white/10"
-                style={{ color: "#fff", borderColor: "rgba(255,255,255,0.4)" }}
-              >
-                Nossos Serviços
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="flex gap-8 mt-12 pt-8" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-              {[
-                { n: "15+", l: "Anos de experiência" },
-                { n: "2.400+", l: "Projetos concluídos" },
-                { n: "98%", l: "Clientes satisfeitos" },
-              ].map((s) => (
-                <div key={s.n}>
-                  <div className="font-black text-2xl" style={{ fontFamily: "'Anton', sans-serif", color: "#F5C842" }}>{s.n}</div>
-                  <div className="text-xs mt-0.5" style={{ color: "#c09070" }}>{s.l}</div>
-                </div>
-              ))}
             </div>
           </div>
 
           <div className="hidden lg:block relative">
-            <div className="absolute -top-6 -left-6 w-64 h-64 rounded-full opacity-20" style={{ background: "#F5C842" }} />
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4" style={{ borderColor: "#C41E3A" }}>
-              <img
-                src="https://images.unsplash.com/photo-1562663474-6cbb3eaa4d14?w=600&h=500&fit=crop&auto=format"
-                alt="Latas de tinta coloridas SONHART"
-                className="w-full object-cover"
-                style={{ height: "420px" }}
-              />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 50%, rgba(28,8,0,0.8) 100%)" }} />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
-                    <Award size={18} color="white" />
-                  </div>
-                  <div>
-                    <div className="text-white font-bold text-sm">Certificação ISO 9001</div>
-                    <div className="text-xs" style={{ color: "#F5C842" }}>Qualidade garantida</div>
-                  </div>
-                </div>
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-2xl border-4" style={{ borderColor: "#C41E3A" }}>
+              <PhotoSlot label="Adicione a foto principal dos seus trabalhos aqui" tall />
             </div>
           </div>
         </div>
@@ -355,254 +291,674 @@ function PageHome({ onNavigate }: { onNavigate: (p: Page) => void }) {
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="inline-block px-4 py-1 rounded-full text-xs font-bold mb-3 tracking-wider uppercase" style={{ background: "rgba(196,30,58,0.1)", color: "#C41E3A" }}>
-              O que fazemos
-            </div>
-            <h2 className="mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.8rem", color: "#1C0800" }}>
-              NOSSOS SERVIÇOS
-            </h2>
-            <p className="max-w-xl mx-auto text-base" style={{ color: "#7A4030" }}>
-              Do projeto à entrega final, oferecemos soluções completas em pintura e revestimento para todos os tipos de obra.
-            </p>
+      {/* Descrição */}
+      <section className="py-16 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-block px-4 py-1 rounded-full text-xs font-bold mb-4 tracking-wider uppercase" style={{ background: "rgba(196,30,58,.1)", color: "#C41E3A" }}>
+            Quem somos
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SERVICES.map((s) => <ServiceCard key={s.id} service={s} onNavigate={onNavigate} />)}
-          </div>
+          <h2 className="mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.2rem", color: "#1C0800" }}>
+            PINTURAS DE ALTO PADRÃO
+          </h2>
+          <p className="text-base leading-relaxed max-w-2xl mx-auto" style={{ color: "#4A2010" }}>
+            <strong>Sonhart Pinturas Mecanizadas</strong> é especializada em pinturas de alto padrão. Com equipamentos modernos conseguimos entregar sempre o melhor acabamento aos nossos clientes!
+          </p>
         </div>
       </section>
 
-      {/* Why us */}
-      <section className="py-20 px-6" style={{ background: "#1C0800" }}>
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <div className="inline-block px-4 py-1 rounded-full text-xs font-bold mb-4 tracking-wider uppercase" style={{ background: "rgba(245,200,66,0.15)", color: "#F5C842" }}>
-              Por que escolher a SONHART
-            </div>
-            <h2 className="text-white mb-6" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.6rem", lineHeight: 1.1 }}>
-              QUALIDADE QUE<br />
-              <span style={{ color: "#C41E3A" }}>VOCÊ PODE VER</span>
-            </h2>
-            <p className="mb-8 leading-relaxed" style={{ color: "#c09070" }}>
-              Nossa equipe de profissionais altamente treinados utiliza materiais premium e técnicas avançadas para entregar resultados excepcionais em cada projeto.
-            </p>
-            <div className="space-y-4">
-              {[
-                "Materiais de primeira linha, selecionados com rigor",
-                "Equipe treinada e certificada",
-                "Prazo de entrega cumprido com garantia contratual",
-                "Limpeza e organização total do canteiro de obras",
-                "Garantia de 2 a 5 anos nos serviços",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <CheckCircle size={18} className="mt-0.5 shrink-0" style={{ color: "#F5C842" }} />
-                  <span className="text-sm" style={{ color: "#e0c0a0" }}>{item}</span>
-                </div>
-              ))}
-            </div>
+      {/* Serviços rápidos */}
+      <section className="py-16 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-center mb-10" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.2rem", color: "#1C0800" }}>
+            NOSSOS SERVIÇOS
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {SERVICOS.map((s) => {
+              const page = s.id as Page;
+              return (
+                <button
+                  key={s.label}
+                  onClick={() => onNav(page)}
+                  className="text-left p-5 rounded-xl border-2 transition-all hover:shadow-lg group"
+                  style={{ background: "#fff", borderColor: "rgba(196,30,58,.12)" }}
+                >
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ background: `${s.color}15`, color: s.color }}>
+                    {s.icon}
+                  </div>
+                  <div className="font-bold text-sm mb-1" style={{ color: "#1C0800" }}>{s.label}</div>
+                  <div className="text-xs" style={{ color: "#7A4030" }}>{s.desc}</div>
+                </button>
+              );
+            })}
+            {/* empty slot for the 8th card to keep grid symmetry */}
             <button
-              onClick={() => onNavigate("contato")}
-              className="mt-8 flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm"
-              style={{ background: "#C41E3A", color: "#fff" }}
+              onClick={() => onNav("contato")}
+              className="text-left p-5 rounded-xl border-2 transition-all hover:shadow-lg flex flex-col items-center justify-center text-center"
+              style={{ background: "#C41E3A", borderColor: "#C41E3A" }}
             >
-              Solicitar visita técnica <ArrowRight size={15} />
+              <MessageCircle size={28} color="#F5C842" className="mb-2" />
+              <div className="font-bold text-sm text-white">Solicitar<br/>Orçamento</div>
             </button>
           </div>
-
-          <div className="grid grid-cols-2 gap-5">
-            {[
-              { icon: <Shield size={28} />, title: "Garantia Total", desc: "Documentada e contratual em todos os serviços" },
-              { icon: <Clock size={28} />, title: "Pontualidade", desc: "Prazos rigorosamente respeitados e comunicados" },
-              { icon: <Award size={28} />, title: "Premiado", desc: "Reconhecido por excelência no setor de tintas" },
-              { icon: <Users size={28} />, title: "Equipe Própria", desc: "Profissionais diretos, sem terceirização" },
-            ].map((card) => (
-              <div key={card.title} className="p-5 rounded-xl" style={{ background: "rgba(196,30,58,0.12)", border: "1px solid rgba(196,30,58,0.2)" }}>
-                <div className="mb-3" style={{ color: "#F5C842" }}>{card.icon}</div>
-                <h4 className="font-bold text-sm text-white mb-1" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1rem" }}>{card.title}</h4>
-                <p className="text-xs" style={{ color: "#c09070" }}>{card.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.5rem", color: "#1C0800" }}>O QUE DIZEM NOSSOS CLIENTES</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "Marina Costa", role: "Arquiteta", text: "A SONHART superou todas as expectativas. O acabamento decorativo ficou impecável, exatamente como projetei.", stars: 5 },
-              { name: "Roberto Almeida", role: "Construtora RA", text: "Trabalhamos juntos em 12 obras. Qualidade constante, equipe profissional e prazos sempre cumpridos.", stars: 5 },
-              { name: "Fernanda Lima", role: "Síndica", text: "A reforma do condomínio foi transformada pela SONHART. Voltarei a contratar sem dúvida!", stars: 5 },
-            ].map((t) => (
-              <div key={t.name} className="p-6 rounded-xl shadow-sm" style={{ background: "#fff", border: "1px solid rgba(196,30,58,0.1)" }}>
-                <div className="flex gap-1 mb-4">
-                  {Array(t.stars).fill(0).map((_, i) => <Star key={i} size={14} fill="#F5C842" color="#F5C842" />)}
-                </div>
-                <p className="text-sm leading-relaxed mb-5 italic" style={{ color: "#4A2010" }}>"{t.text}"</p>
-                <div>
-                  <div className="font-bold text-sm" style={{ color: "#1C0800" }}>{t.name}</div>
-                  <div className="text-xs" style={{ color: "#C41E3A" }}>{t.role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Banner */}
-      <section className="py-16 px-6" style={{ background: "#C41E3A" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.5rem" }}>
-            PRONTO PARA TRANSFORMAR SEU ESPAÇO?
-          </h2>
-          <p className="mb-8 text-base" style={{ color: "rgba(255,255,255,0.85)" }}>
-            Entre em contato e receba um orçamento gratuito em até 24 horas.
-          </p>
-          <button
-            onClick={() => onNavigate("contato")}
-            className="px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105"
-            style={{ background: "#F5C842", color: "#1C0800" }}
-          >
-            Falar com um especialista agora
-          </button>
+      {/* CTA WhatsApp */}
+      <section className="py-16 px-6 text-center" style={{ background: "#1C0800" }}>
+        <h2 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2.2rem" }}>
+          PRONTO PARA TRANSFORMAR SEU ESPAÇO?
+        </h2>
+        <p className="mb-7 text-sm" style={{ color: "rgba(255,255,255,.75)" }}>
+          Entre em contato pelo WhatsApp e solicite seu orçamento gratuito.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <WABtn label="Chamar no WhatsApp agora" />
+          <a href={WA_CATALOG} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm border-2 transition-all hover:bg-white/10" style={{ color: "#F5C842", borderColor: "#F5C842" }}>
+            <BookOpen size={16} /> Ver catálogo completo
+          </a>
         </div>
       </section>
     </div>
   );
 }
 
-// ─── GENERIC SERVICE PAGE ──────────────────────────────────────────────────────
-interface ServicePageProps {
-  onNavigate: (p: Page) => void;
-  title: string;
-  subtitle: string;
-  heroImage: string;
-  heroAlt: string;
-  heroColor: string;
-  description: string;
-  items: string[];
-  steps: { n: string; title: string; desc: string }[];
-  image2: string;
-  alt2: string;
-  badge?: string;
-}
-
-function ServicePage({ onNavigate, title, subtitle, heroImage, heroAlt, heroColor, description, items, steps, image2, alt2, badge }: ServicePageProps) {
+// ─── PÁGINA 2: SOBRE ───────────────────────────────────────────────────────────
+function PageSobre({ onNav }: { onNav: (p: Page) => void }) {
   return (
     <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
-      {/* Hero */}
-      <section className="relative pt-32 pb-24 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
-        <div className="absolute inset-0">
-          <img src={heroImage} alt={heroAlt} className="w-full h-full object-cover opacity-25" />
-          <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${heroColor}99 0%, rgba(28,8,0,0.95) 65%)` }} />
-        </div>
-        <div className="absolute top-0 right-0 w-80 h-48 rounded-bl-full opacity-50" style={{ background: heroColor }} />
-
-        <div className="relative max-w-5xl mx-auto">
-          <button onClick={() => onNavigate("home")} className="flex items-center gap-1 text-xs mb-6 font-semibold" style={{ color: "#F5C842" }}>
-            ← Voltar ao início
-          </button>
-          {badge && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,0.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,0.3)" }}>
-              {badge}
-            </div>
-          )}
-          <h1 className="text-white mb-4 leading-none" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}>
-            {title}
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#C41E3A" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+            Nossa história
+          </div>
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            SOBRE A SONHART
           </h1>
-          <p className="text-lg max-w-xl" style={{ color: "rgba(255,255,255,0.8)" }}>{subtitle}</p>
-          <button
-            onClick={() => onNavigate("contato")}
-            className="mt-8 flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm"
-            style={{ background: heroColor, color: "#fff", boxShadow: `0 8px 24px ${heroColor}50` }}
-          >
-            Pedir orçamento gratuito <ArrowRight size={15} />
-          </button>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>
+            Especialistas em pinturas mecanizadas de alto padrão
+          </p>
         </div>
       </section>
 
-      {/* Content */}
       <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-14 items-start">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-start">
           <div>
-            <h2 className="mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem", color: "#1C0800" }}>
-              POR QUE ESCOLHER ESTE SERVIÇO?
+            <h2 className="mb-5" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem", color: "#1C0800" }}>
+              SONHART PINTURAS MECANIZADAS
             </h2>
-            <p className="mb-6 leading-relaxed" style={{ color: "#4A2010" }}>{description}</p>
-            <div className="space-y-3">
-              {items.map((it) => (
+            <p className="mb-4 leading-relaxed" style={{ color: "#4A2010" }}>
+              <strong>Sonhart Pinturas Mecanizadas</strong> é especializada em pinturas de alto padrão. Com equipamentos modernos conseguimos entregar sempre o melhor acabamento aos nossos clientes!
+            </p>
+            <p className="mb-6 leading-relaxed" style={{ color: "#4A2010" }}>
+              Nossa especialidade abrange desde pinturas residenciais até acabamentos decorativos sofisticados como cimento queimado, efeito Velvet, efeito mármore e pintura em epóxi — sempre com o compromisso de qualidade e excelência em cada projeto.
+            </p>
+
+            <div className="space-y-3 mb-8">
+              {[
+                "Equipamentos modernos para melhor acabamento",
+                "Especialistas em efeitos decorativos e pinturas de alto padrão",
+                "Atendimento personalizado para cada cliente",
+                "Comprometimento com qualidade em cada detalhe",
+              ].map(it => (
                 <div key={it} className="flex items-start gap-3">
-                  <CheckCircle size={18} className="mt-0.5 shrink-0" style={{ color: heroColor }} />
+                  <CheckCircle size={17} className="mt-0.5 shrink-0" style={{ color: "#C41E3A" }} />
                   <span className="text-sm" style={{ color: "#4A2010" }}>{it}</span>
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => onNavigate("contato")}
-              className="mt-8 flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm"
-              style={{ background: heroColor, color: "#fff" }}
-            >
-              Solicitar visita técnica gratuita <ArrowRight size={15} />
-            </button>
+
+            <WABtn />
           </div>
 
-          <div className="rounded-2xl overflow-hidden shadow-xl relative" style={{ border: `3px solid ${heroColor}` }}>
-            <img src={image2} alt={alt2} className="w-full object-cover" style={{ height: "380px" }} />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(28,8,0,0.7) 100%)" }} />
-            <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: heroColor }}>
-                <Award size={18} color="white" />
+          <div className="space-y-4">
+            <div className="p-6 rounded-2xl" style={{ background: "#1C0800" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
+                  <Paintbrush size={22} color="white" />
+                </div>
+                <div>
+                  <div className="text-white font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1.1rem" }}>Israel Freitas</div>
+                  <div className="text-xs" style={{ color: "#F5C842" }}>Responsável — Sonhart Pinturas Mecanizadas</div>
+                </div>
               </div>
-              <span className="text-white text-sm font-bold">Garantia de qualidade SONHART</span>
+              <p className="text-sm leading-relaxed" style={{ color: "#c0a090" }}>
+                Responsável pela empresa e pelo padrão de qualidade de cada projeto entregue.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: <Award size={24}/>,    title: "Alto Padrão",         desc: "Acabamentos de excelência em cada projeto" },
+                { icon: <Paintbrush size={24}/>, title: "Mecanizado",        desc: "Equipamentos modernos para melhor resultado" },
+                { icon: <Clock size={24}/>,     title: "Seg–Sex",            desc: "Atendimento disponível 24 horas de segunda a sexta" },
+                { icon: <MessageCircle size={24}/>, title: "Orçamento grátis", desc: "Contato direto pelo WhatsApp" },
+              ].map(c => (
+                <div key={c.title} className="p-4 rounded-xl" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.12)" }}>
+                  <div className="mb-2" style={{ color: "#C41E3A" }}>{c.icon}</div>
+                  <div className="font-bold text-sm mb-1" style={{ color: "#1C0800" }}>{c.title}</div>
+                  <div className="text-xs" style={{ color: "#7A4030" }}>{c.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            <PhotoSlot label="Adicione uma foto da equipe ou dos trabalhos aqui" tall />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 3: SERVIÇOS ────────────────────────────────────────────────────────
+function PageServicos({ onNav }: { onNav: (p: Page) => void }) {
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#E86B1F" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            NOSSOS SERVIÇOS
+          </h1>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>Pinturas de alto padrão para todos os tipos de espaço</p>
+        </div>
+      </section>
+
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+            {SERVICOS.map((s) => {
+              const page = s.id as Page;
+              return (
+                <div key={s.label} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.1)" }}>
+                  <div className="h-48 flex items-center justify-center relative" style={{ background: `${s.color}12` }}>
+                    <PhotoSlot label={`Foto de ${s.label}`} />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold" style={{ background: s.color, color: "#fff" }}>
+                      {s.label}
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div style={{ color: s.color }}>{s.icon}</div>
+                      <h3 className="font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1.1rem", color: "#1C0800" }}>{s.label}</h3>
+                    </div>
+                    <p className="text-sm mb-4" style={{ color: "#7A4030" }}>{s.desc}</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onNav(page)}
+                        className="text-xs font-bold flex items-center gap-1"
+                        style={{ color: s.color }}
+                      >
+                        Ver mais <ArrowRight size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-14 text-center p-8 rounded-2xl" style={{ background: "#1C0800" }}>
+            <h2 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem" }}>SOLICITE SEU ORÇAMENTO</h2>
+            <p className="mb-6 text-sm" style={{ color: "#c0a090" }}>Fale diretamente com a Sonhart pelo WhatsApp ou acesse o catálogo completo.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <WABtn label="Chamar no WhatsApp" />
+              <a href={WA_CATALOG} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm border-2" style={{ color: "#F5C842", borderColor: "#F5C842" }}>
+                <BookOpen size={16}/> Ver catálogo
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 4: EFEITOS DECORATIVOS ────────────────────────────────────────────
+function PageEfeitos({ onNav }: { onNav: (p: Page) => void }) {
+  const efeitos = [
+    {
+      title: "Cimento Queimado",
+      color: "#C41E3A",
+      icon: <Layers size={28}/>,
+      desc: "O cimento queimado é um dos acabamentos mais sofisticados e modernos disponíveis hoje. Proporciona uma superfície com aparência urbana e contemporânea, muito valorizada em projetos de design de interiores.",
+      tags: ["Paredes", "Pisos", "Moderno", "Contemporâneo"],
+    },
+    {
+      title: "Efeito Velvet",
+      color: "#E86B1F",
+      icon: <Sparkles size={28}/>,
+      desc: "O efeito Velvet cria uma superfície com aparência aveludada e toque macio, transmitindo sofisticação e exclusividade. Ideal para quem deseja um ambiente com personalidade única e acabamento de luxo.",
+      tags: ["Aveludado", "Luxo", "Elegante", "Exclusivo"],
+    },
+    {
+      title: "Efeito Mármore",
+      color: "#B5191A",
+      icon: <Star size={28}/>,
+      desc: "O efeito mármore replica a beleza e sofisticação do mármore natural em qualquer superfície. Um acabamento de alto impacto visual que valoriza qualquer ambiente com elegância e nobreza.",
+      tags: ["Sofisticado", "Elegante", "Nobre", "Alto padrão"],
+    },
+  ];
+
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#B5191A" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+            <Sparkles size={12}/> Arte & Exclusividade
+          </div>
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            EFEITOS DECORATIVOS
+          </h1>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>Cimento Queimado · Efeito Velvet · Efeito Mármore</p>
+        </div>
+      </section>
+
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-6xl mx-auto space-y-16">
+          {efeitos.map((ef, i) => (
+            <div key={ef.title} className={`grid lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? "lg:[direction:rtl]" : ""}`}>
+              <div className="lg:[direction:ltr]">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${ef.color}18`, color: ef.color }}>
+                    {ef.icon}
+                  </div>
+                  <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem", color: "#1C0800" }}>{ef.title.toUpperCase()}</h2>
+                </div>
+                <p className="mb-5 leading-relaxed" style={{ color: "#4A2010" }}>{ef.desc}</p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {ef.tags.map(t => (
+                    <span key={t} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: `${ef.color}15`, color: ef.color }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <WABtn label={`Pedir orçamento — ${ef.title}`} />
+              </div>
+              <div className="lg:[direction:ltr] grid grid-cols-2 gap-3">
+                <PhotoSlot label={`Foto de ${ef.title} — resultado 1`} tall />
+                <div className="space-y-3">
+                  <PhotoSlot label={`Foto de ${ef.title} — resultado 2`} />
+                  <PhotoSlot label={`Foto de ${ef.title} — detalhe`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="py-16 px-6 text-center" style={{ background: "#C41E3A" }}>
+        <h2 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem" }}>
+          QUER UM ACABAMENTO EXCLUSIVO?
+        </h2>
+        <p className="mb-6 text-sm" style={{ color: "rgba(255,255,255,.85)" }}>Solicite seu orçamento pelo WhatsApp agora mesmo.</p>
+        <WABtn label="Solicitar orçamento pelo WhatsApp" />
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 5: PINTURA EM EPÓXI ────────────────────────────────────────────────
+function PageEpoxi({ onNav }: { onNav: (p: Page) => void }) {
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#B5191A" }} />
+        <div className="relative max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+            <Droplets size={12}/> Revestimento Técnico
+          </div>
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            PINTURA EM EPÓXI
+          </h1>
+          <p className="max-w-lg" style={{ color: "rgba(255,255,255,.75)" }}>
+            Alta resistência, brilho intenso e acabamento impecável para pisos, paredes e superfícies especiais.
+          </p>
+          <div className="mt-6">
+            <WABtn label="Pedir orçamento para Epóxi" />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-start">
+          <div>
+            <h2 className="mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem", color: "#1C0800" }}>
+              O QUE É PINTURA EM EPÓXI?
+            </h2>
+            <p className="mb-4 leading-relaxed" style={{ color: "#4A2010" }}>
+              A pintura em epóxi é um tipo de revestimento de alta performance que proporciona um acabamento extremamente resistente, duradouro e com excelente brilho. É muito utilizada em pisos, garagens, áreas comerciais e ambientes que exigem durabilidade superior.
+            </p>
+            <p className="mb-6 leading-relaxed" style={{ color: "#4A2010" }}>
+              Na Sonhart Pinturas Mecanizadas, aplicamos epóxi com equipamentos modernos, garantindo uma cobertura uniforme e um acabamento de alto padrão.
+            </p>
+
+            <div className="space-y-3 mb-8">
+              {[
+                "Alta resistência a impactos e abrasão",
+                "Superfície de fácil limpeza e manutenção",
+                "Acabamento liso, brilhante e uniforme",
+                "Ideal para pisos de garagens e áreas comerciais",
+                "Resistente a produtos químicos",
+                "Aplicação com equipamentos modernos",
+              ].map(it => (
+                <div key={it} className="flex items-start gap-3">
+                  <CheckCircle size={17} className="mt-0.5 shrink-0" style={{ color: "#B5191A" }} />
+                  <span className="text-sm" style={{ color: "#4A2010" }}>{it}</span>
+                </div>
+              ))}
+            </div>
+
+            <WABtn label="Solicitar orçamento para Epóxi" />
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-2xl overflow-hidden" style={{ border: "3px solid #B5191A" }}>
+              <PhotoSlot label="Adicione aqui a foto real do trabalho de Pintura em Epóxi" tall />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <PhotoSlot label="Detalhe epóxi — antes" />
+              <PhotoSlot label="Detalhe epóxi — depois" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Steps */}
-      <section className="py-20 px-6" style={{ background: "#1C0800" }}>
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-center text-white mb-12" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem" }}>
-            COMO FUNCIONA NOSSO PROCESSO
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((step) => (
-              <div key={step.n} className="p-5 rounded-xl text-center" style={{ background: "rgba(196,30,58,0.1)", border: "1px solid rgba(196,30,58,0.2)" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-sm" style={{ background: heroColor, color: "#fff" }}>
-                  {step.n}
-                </div>
-                <h4 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1rem" }}>{step.title}</h4>
-                <p className="text-xs" style={{ color: "#c09070" }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
+      <section className="py-14 px-6 text-center" style={{ background: "#1C0800" }}>
+        <h2 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem" }}>
+          INTERESSE EM PINTURA EM EPÓXI?
+        </h2>
+        <p className="mb-6 text-sm" style={{ color: "rgba(255,255,255,.75)" }}>Fale com a Sonhart agora pelo WhatsApp e solicite seu orçamento gratuito.</p>
+        <WABtn label="Chamar no WhatsApp" />
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 6: GALERIA ─────────────────────────────────────────────────────────
+function PageGaleria({ onNav }: { onNav: (p: Page) => void }) {
+  const categorias = [
+    { label: "Cimento Queimado", count: 4, color: "#C41E3A" },
+    { label: "Efeito Velvet",    count: 4, color: "#E86B1F" },
+    { label: "Pintura em Epóxi", count: 4, color: "#B5191A" },
+    { label: "Efeito Mármore",   count: 4, color: "#C85A00" },
+    { label: "Pinturas Decorativas", count: 4, color: "#A01530" },
+  ];
+
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#C41E3A" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            GALERIA DE TRABALHOS
+          </h1>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>Resultados reais de cada serviço — adicione suas fotos abaixo</p>
         </div>
       </section>
 
-      {/* Other services */}
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-7xl mx-auto space-y-16">
+          {categorias.map(cat => (
+            <div key={cat.label}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-1 h-8 rounded-full" style={{ background: cat.color }} />
+                <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem", color: "#1C0800" }}>
+                  {cat.label.toUpperCase()}
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: cat.count }).map((_, i) => (
+                  <PhotoSlot key={i} label={`${cat.label} — foto ${i + 1}`} tall />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="py-14 px-6 text-center" style={{ background: "#1C0800" }}>
+        <p className="text-white mb-2 font-bold text-lg">Quer ver mais trabalhos?</p>
+        <p className="mb-6 text-sm" style={{ color: "#c0a090" }}>Acesse o Instagram da Sonhart para mais fotos e vídeos dos trabalhos realizados.</p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm" style={{ background: "#C41E3A", color: "#fff" }}>
+            <Instagram size={16}/> Ver no Instagram
+          </a>
+          <WABtn label="Solicitar orçamento" />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 7: PORTFÓLIO ───────────────────────────────────────────────────────
+function PagePortfolio({ onNav }: { onNav: (p: Page) => void }) {
+  const cats = ["Todos", "Cimento Queimado", "Efeito Velvet", "Epóxi", "Pinturas Decorativas", "Efeito Mármore"];
+  const [active, setActive] = useState("Todos");
+
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#E86B1F" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            PORTFÓLIO
+          </h1>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>Projetos realizados com qualidade e dedicação</p>
+        </div>
+      </section>
+
       <section className="py-16 px-6" style={{ background: "#FFF8F0" }}>
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-center mb-8" style={{ fontFamily: "'Anton', sans-serif", fontSize: "2rem", color: "#1C0800" }}>
-            OUTROS SERVIÇOS
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {SERVICES.slice(0, 4).map((s) => (
+          {/* Category tabs */}
+          <div className="flex flex-wrap gap-2 mb-10 justify-center">
+            {cats.map(c => (
               <button
-                key={s.id}
-                onClick={() => onNavigate(s.id)}
-                className="p-4 rounded-xl text-left transition-all hover:scale-102 border"
-                style={{ background: "#fff", borderColor: "rgba(196,30,58,0.12)" }}
+                key={c}
+                onClick={() => setActive(c)}
+                className="px-4 py-2 rounded-full text-sm font-semibold transition-all"
+                style={{
+                  background: active === c ? "#C41E3A" : "#fff",
+                  color: active === c ? "#fff" : "#4A2010",
+                  border: active === c ? "2px solid #C41E3A" : "2px solid rgba(196,30,58,.2)",
+                }}
               >
-                <div className="text-2xl mb-2" style={{ color: s.color }}>{s.icon}</div>
-                <div className="font-bold text-xs" style={{ color: "#1C0800" }}>{s.label}</div>
+                {c}
               </button>
+            ))}
+          </div>
+
+          {/* Portfolio grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.1)" }}>
+                <PhotoSlot label={`Projeto ${i + 1} — adicione a foto real aqui`} tall />
+                <div className="p-4">
+                  <div className="font-bold text-sm mb-1" style={{ color: "#1C0800" }}>Projeto {i + 1}</div>
+                  <div className="text-xs mb-3" style={{ color: "#7A4030" }}>Adicione a descrição do projeto aqui</div>
+                  <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: "#C41E3A" }}>
+                    <ExternalLink size={12}/> Ver no Instagram
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-sm mb-4" style={{ color: "#7A4030" }}>Confira mais projetos completos no Instagram:</p>
+            <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm" style={{ background: "#C41E3A", color: "#fff" }}>
+              <Instagram size={16}/> @sonhartpinturasoficial
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 8: INSTAGRAM ───────────────────────────────────────────────────────
+function PageInsta({ onNav }: { onNav: (p: Page) => void }) {
+  const posts = Array.from({ length: 6 });
+
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#C41E3A" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: "linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)" }}>
+            <Instagram size={32} color="white" />
+          </div>
+          <h1 className="text-white mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            INSTAGRAM
+          </h1>
+          <p className="text-lg font-bold mb-2" style={{ color: "#F5C842" }}>@sonhartpinturasoficial</p>
+          <p className="mb-6" style={{ color: "rgba(255,255,255,.75)" }}>
+            Acompanhe nossos trabalhos, efeitos decorativos, antes &amp; depois e muito mais.
+          </p>
+          <a
+            href={IG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm"
+            style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)", color: "#fff" }}
+          >
+            <Instagram size={16}/> Seguir no Instagram
+          </a>
+        </div>
+      </section>
+
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-sm mb-8" style={{ color: "#7A4030" }}>
+            As publicações abaixo são exemplos de posts da Sonhart. Para ver as fotos e vídeos reais, acesse o Instagram:
+            <a href={IG_URL} target="_blank" rel="noopener noreferrer" className="font-bold ml-1" style={{ color: "#C41E3A" }}>@sonhartpinturasoficial</a>
+          </p>
+
+          {/* Mock Instagram grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10">
+            {posts.map((_, i) => (
+              <a
+                key={i}
+                href={IG_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative rounded-xl overflow-hidden group block"
+                style={{ aspectRatio: "1" }}
+              >
+                <PhotoSlot label={`Post ${i + 1} — clique para ver no Instagram`} />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" style={{ background: "rgba(196,30,58,.6)" }}>
+                  <div className="text-center text-white">
+                    <Instagram size={28} className="mx-auto mb-1" />
+                    <span className="text-xs font-bold">Ver no Instagram</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* Videos section */}
+          <div className="rounded-2xl p-8 text-center" style={{ background: "#1C0800" }}>
+            <Play size={40} className="mx-auto mb-4" style={{ color: "#F5C842" }} />
+            <h2 className="text-white mb-2" style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem" }}>VÍDEOS DOS TRABALHOS</h2>
+            <p className="text-sm mb-6" style={{ color: "#c0a090" }}>
+              Confira os vídeos dos processos e resultados no Instagram da Sonhart.
+            </p>
+            <a
+              href={IG_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm"
+              style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)", color: "#fff" }}
+            >
+              <Instagram size={16}/> Ver vídeos no Instagram
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PÁGINA 9: CATÁLOGO / ORÇAMENTO ───────────────────────────────────────────
+function PageOrcamento({ onNav }: { onNav: (p: Page) => void }) {
+  return (
+    <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#C41E3A" }} />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+            <MessageCircle size={12}/> Orçamento Gratuito
+          </div>
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            CATÁLOGO & ORÇAMENTO
+          </h1>
+          <p style={{ color: "rgba(255,255,255,.75)" }}>
+            Conheça nosso catálogo completo e solicite seu orçamento pelo WhatsApp
+          </p>
+        </div>
+      </section>
+
+      <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Catalog card */}
+          <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: "#fff", border: "2px solid #25D366" }}>
+            <div className="p-2" style={{ background: "#25D366" }}>
+              <p className="text-white text-center text-xs font-bold tracking-wider uppercase">Catálogo Oficial Sonhart</p>
+            </div>
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(37,211,102,.12)" }}>
+                <BookOpen size={32} style={{ color: "#25D366" }} />
+              </div>
+              <h2 className="mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem", color: "#1C0800" }}>
+                CATÁLOGO COMPLETO DE SERVIÇOS
+              </h2>
+              <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: "#4A2010" }}>
+                Acesse o catálogo completo da Sonhart Pinturas Mecanizadas diretamente pelo WhatsApp e veja todos os serviços, efeitos e acabamentos disponíveis.
+              </p>
+              <a
+                href={WA_CATALOG}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105"
+                style={{ background: "#25D366", color: "#fff", boxShadow: "0 8px 24px rgba(37,211,102,.4)" }}
+              >
+                <BookOpen size={20}/> Ver catálogo no WhatsApp
+              </a>
+            </div>
+          </div>
+
+          {/* Direct WhatsApp card */}
+          <div className="rounded-2xl overflow-hidden shadow-lg" style={{ background: "#fff", border: "2px solid #C41E3A" }}>
+            <div className="p-2" style={{ background: "#C41E3A" }}>
+              <p className="text-white text-center text-xs font-bold tracking-wider uppercase">Orçamento Direto</p>
+            </div>
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(196,30,58,.1)" }}>
+                <MessageCircle size={32} style={{ color: "#C41E3A" }} />
+              </div>
+              <h2 className="mb-3" style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem", color: "#1C0800" }}>
+                CONVERSAR PELO WHATSAPP
+              </h2>
+              <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: "#4A2010" }}>
+                Fale diretamente com a Sonhart. Descreva seu projeto, envie fotos do local e receba seu orçamento gratuito rapidamente.
+              </p>
+              <WABtn label={`Chamar agora: ${PHONE_DISP}`} />
+            </div>
+          </div>
+
+          {/* Info cards */}
+          <div className="grid sm:grid-cols-3 gap-5">
+            {[
+              { icon: <Award size={24}/>, title: "Orçamento Gratuito", desc: "Sem compromisso e sem custo" },
+              { icon: <Clock size={24}/>,  title: "Atendimento Seg–Sex", desc: "Disponível 24 horas de segunda a sexta" },
+              { icon: <MessageCircle size={24}/>, title: "Resposta Rápida", desc: "Retornamos seu contato pelo WhatsApp" },
+            ].map(c => (
+              <div key={c.title} className="p-5 rounded-xl text-center" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.12)" }}>
+                <div className="flex justify-center mb-2" style={{ color: "#C41E3A" }}>{c.icon}</div>
+                <div className="font-bold text-sm mb-1" style={{ color: "#1C0800" }}>{c.title}</div>
+                <div className="text-xs" style={{ color: "#7A4030" }}>{c.desc}</div>
+              </div>
             ))}
           </div>
         </div>
@@ -611,50 +967,61 @@ function ServicePage({ onNavigate, title, subtitle, heroImage, heroAlt, heroColo
   );
 }
 
-// ─── CONTACT PAGE ──────────────────────────────────────────────────────────────
-function PageContato({ onNavigate }: { onNavigate: (p: Page) => void }) {
-  const [form, setForm] = useState({ name: "", phone: "", email: "", service: "", message: "" });
+// ─── PÁGINA 10: CONTATO ────────────────────────────────────────────────────────
+function PageContato({ onNav }: { onNav: (p: Page) => void }) {
+  const [form, setForm] = useState({ name: "", phone: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Build WhatsApp message
+    const text = encodeURIComponent(
+      `Olá, Sonhart! Me chamo ${form.name}.\nTelefone: ${form.phone}\nServiço: ${form.service || "Não informado"}\nMensagem: ${form.message}`
+    );
+    window.open(`https://wa.me/558788226113?text=${text}`, "_blank");
     setSent(true);
   };
 
+  const contacts = [
+    { icon: <MessageCircle size={20}/>, label: "WhatsApp", value: PHONE_DISP, href: WA_DIRECT, color: "#25D366" },
+    { icon: <Mail size={20}/>,          label: "E-mail",    value: EMAIL_ADDR, href: `mailto:${EMAIL_ADDR}`, color: "#C41E3A" },
+    { icon: <Instagram size={20}/>,     label: "Instagram", value: "@sonhartpinturasoficial", href: IG_URL, color: "#E86B1F" },
+    { icon: <BookOpen size={20}/>,      label: "Catálogo",  value: "Ver catálogo completo", href: WA_CATALOG, color: "#B5191A" },
+  ];
+
   return (
     <div style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-6" style={{ background: "#1C0800" }}>
-        <div className="absolute top-0 right-0 w-64 h-40 rounded-bl-full opacity-60" style={{ background: "#C41E3A" }} />
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ background: "#1C0800" }}>
+        <div className="absolute top-0 right-0 w-72 h-44 rounded-bl-full opacity-50" style={{ background: "#C41E3A" }} />
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,0.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,0.3)" }}>
-            <Phone size={12} /> Atendimento Rápido
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4" style={{ background: "rgba(245,200,66,.15)", color: "#F5C842", border: "1px solid rgba(245,200,66,.3)" }}>
+            <Phone size={12}/> Fale conosco
           </div>
-          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem, 6vw, 4rem)" }}>
-            FALE COM A SONHART
+          <h1 className="text-white mb-4" style={{ fontFamily: "'Anton', sans-serif", fontSize: "clamp(2.5rem,6vw,4rem)" }}>
+            CONTATO
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.7)" }}>
-            Solicite seu orçamento gratuito. Respondemos em até 24 horas.
+          <p style={{ color: "rgba(255,255,255,.75)" }}>
+            Entre em contato com a Sonhart pelo canal de sua preferência
           </p>
         </div>
       </section>
 
-      {/* Content */}
       <section className="py-20 px-6" style={{ background: "#FFF8F0" }}>
         <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-12">
-          {/* Form */}
+          {/* Form → vai para WhatsApp */}
           <div className="lg:col-span-3">
-            <div className="p-8 rounded-2xl shadow-sm" style={{ background: "#fff", border: "1px solid rgba(196,30,58,0.1)" }}>
-              <h2 className="mb-6" style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem", color: "#1C0800" }}>
-                SOLICITAR ORÇAMENTO
+            <div className="p-8 rounded-2xl shadow-sm" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.1)" }}>
+              <h2 className="mb-2" style={{ fontFamily: "'Anton', sans-serif", fontSize: "1.8rem", color: "#1C0800" }}>
+                ENVIAR MENSAGEM
               </h2>
+              <p className="text-xs mb-6" style={{ color: "#7A4030" }}>Ao enviar, você será direcionado para o WhatsApp da Sonhart.</p>
 
               {sent ? (
                 <div className="text-center py-12">
-                  <CheckCircle size={56} className="mx-auto mb-4" style={{ color: "#C41E3A" }} />
-                  <h3 className="font-bold text-xl mb-2" style={{ color: "#1C0800" }}>Mensagem enviada!</h3>
-                  <p style={{ color: "#7A4030" }}>Entraremos em contato em breve. Obrigado!</p>
-                  <button onClick={() => setSent(false)} className="mt-6 px-5 py-2 rounded-full text-sm font-bold" style={{ background: "#C41E3A", color: "#fff" }}>
+                  <MessageCircle size={56} className="mx-auto mb-4" style={{ color: "#25D366" }} />
+                  <h3 className="font-bold text-xl mb-2" style={{ color: "#1C0800" }}>Abrindo WhatsApp!</h3>
+                  <p className="mb-6" style={{ color: "#7A4030" }}>A janela do WhatsApp foi aberta com sua mensagem.</p>
+                  <button onClick={() => setSent(false)} className="px-5 py-2 rounded-full text-sm font-bold" style={{ background: "#C41E3A", color: "#fff" }}>
                     Enviar outra mensagem
                   </button>
                 </div>
@@ -662,82 +1029,34 @@ function PageContato({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Nome completo *</label>
-                      <input
-                        required
-                        type="text"
-                        placeholder="Seu nome"
-                        value={form.name}
-                        onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                        style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
-                        onFocus={(e) => (e.target.style.borderColor = "#C41E3A")}
-                        onBlur={(e) => (e.target.style.borderColor = "transparent")}
-                      />
+                      <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Seu nome *</label>
+                      <input required type="text" placeholder="Nome completo" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
+                        onFocus={e => e.target.style.borderColor="#C41E3A"} onBlur={e => e.target.style.borderColor="transparent"} />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Telefone *</label>
-                      <input
-                        required
-                        type="tel"
-                        placeholder="(11) 99999-9999"
-                        value={form.phone}
-                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                        style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
-                        onFocus={(e) => (e.target.style.borderColor = "#C41E3A")}
-                        onBlur={(e) => (e.target.style.borderColor = "transparent")}
-                      />
+                      <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>WhatsApp *</label>
+                      <input required type="tel" placeholder="+55 00 00000-0000" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
+                        onFocus={e => e.target.style.borderColor="#C41E3A"} onBlur={e => e.target.style.borderColor="transparent"} />
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>E-mail</label>
-                    <input
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                      style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
-                      onFocus={(e) => (e.target.style.borderColor = "#C41E3A")}
-                      onBlur={(e) => (e.target.style.borderColor = "transparent")}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Serviço desejado</label>
-                    <select
-                      value={form.service}
-                      onChange={(e) => setForm({ ...form, service: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                      style={{ background: "#F2E4D8", border: "2px solid transparent", color: form.service ? "#1C0800" : "#7A4030" }}
-                    >
+                    <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Serviço de interesse</label>
+                    <select value={form.service} onChange={e => setForm({...form, service: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl text-sm outline-none" style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}>
                       <option value="">Selecione um serviço</option>
-                      {SERVICES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                      {SERVICOS.map(s => <option key={s.label} value={s.label}>{s.label}</option>)}
                     </select>
                   </div>
-
                   <div>
                     <label className="block text-xs font-bold mb-1.5" style={{ color: "#7A4030" }}>Mensagem</label>
-                    <textarea
-                      rows={4}
-                      placeholder="Descreva seu projeto, metragem estimada, prazo desejado..."
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
-                      style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
-                      onFocus={(e) => (e.target.style.borderColor = "#C41E3A")}
-                      onBlur={(e) => (e.target.style.borderColor = "transparent")}
-                    />
+                    <textarea rows={4} placeholder="Descreva seu projeto..." value={form.message} onChange={e => setForm({...form, message: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none" style={{ background: "#F2E4D8", border: "2px solid transparent", color: "#1C0800" }}
+                      onFocus={e => e.target.style.borderColor="#C41E3A"} onBlur={e => e.target.style.borderColor="transparent"} />
                   </div>
-
-                  <button
-                    type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-sm transition-all hover:scale-[1.01]"
-                    style={{ background: "#C41E3A", color: "#fff", boxShadow: "0 8px 24px rgba(196,30,58,0.35)" }}
-                  >
-                    <Send size={16} /> Enviar solicitação de orçamento
+                  <button type="submit" className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-sm transition-all hover:scale-[1.01]" style={{ background: "#25D366", color: "#fff", boxShadow: "0 8px 24px rgba(37,211,102,.35)" }}>
+                    <MessageCircle size={16}/> Enviar pelo WhatsApp
                   </button>
                 </form>
               )}
@@ -745,50 +1064,52 @@ function PageContato({ onNavigate }: { onNavigate: (p: Page) => void }) {
           </div>
 
           {/* Info */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="p-6 rounded-2xl" style={{ background: "#C41E3A" }}>
-              <h3 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1.3rem" }}>
-                Atendimento Direto
-              </h3>
+          <div className="lg:col-span-2 space-y-5">
+            <div className="p-6 rounded-2xl" style={{ background: "#1C0800" }}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#C41E3A" }}>
+                  <Paintbrush size={22} color="white" />
+                </div>
+                <div>
+                  <div className="text-white font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "1.1rem" }}>Israel Freitas</div>
+                  <div className="text-xs" style={{ color: "#F5C842" }}>Sonhart Pinturas Mecanizadas</div>
+                </div>
+              </div>
               <div className="space-y-4">
-                {[
-                  { icon: <Phone size={16} />, label: "Telefone / WhatsApp", value: "(11) 99999-9999" },
-                  { icon: <Mail size={16} />, label: "E-mail", value: "contato@sonhart.com.br" },
-                  { icon: <MapPin size={16} />, label: "Endereço", value: "Rua das Tintas, 245 — São Paulo, SP" },
-                  { icon: <Clock size={16} />, label: "Horário", value: "Seg–Sex: 8h–18h | Sáb: 8h–13h" },
-                ].map((info) => (
-                  <div key={info.label} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "#F5C842" }}>
-                      {info.icon}
+                {contacts.map(c => (
+                  <a key={c.label} href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-white/5"
+                    style={{ textDecoration: "none" }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: `${c.color}25`, color: c.color }}>
+                      {c.icon}
                     </div>
                     <div>
-                      <div className="text-xs font-semibold mb-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>{info.label}</div>
-                      <div className="text-sm text-white font-semibold">{info.value}</div>
+                      <div className="text-xs font-semibold mb-0.5" style={{ color: "rgba(255,255,255,.5)" }}>{c.label}</div>
+                      <div className="text-sm font-semibold text-white">{c.value}</div>
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl" style={{ background: "#fff", border: "1px solid rgba(196,30,58,0.1)" }}>
-              <h3 className="font-bold mb-4" style={{ color: "#1C0800", fontFamily: "'Rajdhani', sans-serif", fontSize: "1.2rem" }}>
-                Áreas de Atendimento
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {["São Paulo", "Guarulhos", "Campinas", "Santo André", "São Bernardo", "Osasco", "Barueri", "Mogi das Cruzes"].map((city) => (
-                  <span key={city} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "#F2E4D8", color: "#C41E3A" }}>
-                    {city}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl flex items-center gap-4" style={{ background: "#F5C842" }}>
-              <Award size={32} style={{ color: "#1C0800" }} className="shrink-0" />
-              <div>
-                <div className="font-bold text-sm" style={{ color: "#1C0800" }}>Orçamento 100% gratuito</div>
-                <div className="text-xs" style={{ color: "#4A2010" }}>Sem compromisso. Resposta em até 24h.</div>
-              </div>
+            <div className="p-5 rounded-2xl" style={{ background: "#fff", border: "1px solid rgba(196,30,58,.12)" }}>
+              <h4 className="font-bold mb-3 flex items-center gap-2" style={{ color: "#1C0800" }}>
+                <Clock size={16} style={{ color: "#C41E3A" }}/> Horários de atendimento
+              </h4>
+              {[
+                { d: "Segunda-feira", h: "Aberta 24 horas" },
+                { d: "Terça-feira",   h: "Aberta 24 horas" },
+                { d: "Quarta-feira",  h: "Aberta 24 horas" },
+                { d: "Quinta-feira",  h: "Aberta 24 horas" },
+                { d: "Sexta-feira",   h: "Aberta 24 horas" },
+                { d: "Sábado",        h: "Fechada" },
+                { d: "Domingo",       h: "Fechada" },
+              ].map(row => (
+                <div key={row.d} className="flex justify-between py-1.5 text-xs border-b last:border-b-0" style={{ borderColor: "rgba(196,30,58,.08)" }}>
+                  <span style={{ color: "#4A2010" }}>{row.d}</span>
+                  <span className="font-semibold" style={{ color: row.h === "Fechada" ? "#7A4030" : "#C41E3A" }}>{row.h}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -797,241 +1118,39 @@ function PageContato({ onNavigate }: { onNavigate: (p: Page) => void }) {
   );
 }
 
-// ─── MAIN APP ──────────────────────────────────────────────────────────────────
+// ─── APP PRINCIPAL ─────────────────────────────────────────────────────────────
 export default function App() {
   const [page, setPage] = useState<Page>("home");
 
-  const navigate = (p: Page) => {
+  const onNav = (p: Page) => {
     setPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const servicePages: Record<Exclude<Page, "home" | "contato">, ServicePageProps & { onNavigate: (p: Page) => void }> = {
-    interior: {
-      onNavigate: navigate,
-      title: "PINTURA INTERIOR",
-      subtitle: "Ambientes renovados com cores e acabamentos que inspiram e valorizam seu imóvel.",
-      heroImage: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Pintura interior profissional",
-      heroColor: "#C41E3A",
-      description: "A pintura interior é o toque final que transforma um espaço. Com nossa equipe especializada, utilizamos as melhores tintas e técnicas para garantir um resultado impecável, seja em residências, escritórios ou estabelecimentos comerciais.",
-      badge: "Residencial & Comercial",
-      items: [
-        "Preparação completa de superfícies (massa corrida, selador, lixamento)",
-        "Tintas premium de baixo odor e alta cobertura",
-        "Profissionais especializados em acabamentos finos",
-        "Mínimo de impacto no cotidiano do cliente",
-        "Limpeza completa após a conclusão do serviço",
-        "Garantia de 2 anos no serviço",
-      ],
-      steps: [
-        { n: "01", title: "Avaliação", desc: "Vistoria gratuita do imóvel e levantamento das necessidades" },
-        { n: "02", title: "Orçamento", desc: "Proposta detalhada com materiais e mão de obra" },
-        { n: "03", title: "Execução", desc: "Equipe treinada executa com proteção total dos móveis" },
-        { n: "04", title: "Entrega", desc: "Vistoria final, limpeza e entrega com garantia" },
-      ],
-      image2: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=500&fit=crop&auto=format",
-      alt2: "Resultado final de pintura interior",
-    },
-    exterior: {
-      onNavigate: navigate,
-      title: "PINTURA EXTERIOR",
-      subtitle: "Proteção e beleza para a fachada do seu imóvel contra todos os elementos.",
-      heroImage: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Pintura exterior de fachada",
-      heroColor: "#E86B1F",
-      description: "A pintura exterior não é apenas estética — é proteção. Nossos sistemas de pintura protegem fachadas contra umidade, fungos, raios UV e poluição, garantindo durabilidade e beleza por anos.",
-      badge: "Fachadas & Condomínios",
-      items: [
-        "Limpeza e tratamento completo da fachada antes da pintura",
-        "Tintas elastoméricas de alta resistência a intempéries",
-        "Proteção anti-mofo e anti-fungo",
-        "Reparos de trincas e imperfeições incluídos",
-        "Equipamentos de segurança certificados para trabalho em altura",
-        "Garantia de 3 anos no serviço",
-      ],
-      steps: [
-        { n: "01", title: "Diagnóstico", desc: "Análise do estado da fachada e das patologias existentes" },
-        { n: "02", title: "Tratamento", desc: "Correção de trincas, limpeza e preparação da superfície" },
-        { n: "03", title: "Aplicação", desc: "Pintura em camadas com tintas selecionadas para cada substrato" },
-        { n: "04", title: "Controle", desc: "Inspeção de qualidade e entrega com certificado" },
-      ],
-      image2: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=700&h=500&fit=crop&auto=format",
-      alt2: "Fachada pintada externamente",
-    },
-    decorativo: {
-      onNavigate: navigate,
-      title: "ACABAMENTOS DECORATIVOS",
-      subtitle: "Técnicas artesanais e efeitos especiais que elevam qualquer ambiente ao nível da arte.",
-      heroImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Acabamento decorativo artesanal",
-      heroColor: "#B5191A",
-      description: "Nossos acabamentos decorativos incluem cimento queimado, marmorização, efeito envelhecido, stucco veneziano e muito mais. Cada técnica é executada por artesãos especializados para criar ambientes únicos.",
-      badge: "Arte & Exclusividade",
-      items: [
-        "Cimento queimado artístico em paredes e pisos",
-        "Marmorização e efeitos pétreos realistas",
-        "Stucco veneziano tradicional",
-        "Efeito envelhecido e patinado",
-        "Pintura artística e murais personalizados",
-        "Atelier de amostras antes da execução",
-      ],
-      steps: [
-        { n: "01", title: "Consultoria", desc: "Definição de estilo, técnica e paleta de cores com o cliente" },
-        { n: "02", title: "Amostra", desc: "Execução de painel de teste no local para aprovação" },
-        { n: "03", title: "Aplicação", desc: "Execução artesanal por especialistas certificados" },
-        { n: "04", title: "Finalização", desc: "Aplicação de proteção e verniz; entrega impecável" },
-      ],
-      image2: "https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?w=700&h=500&fit=crop&auto=format",
-      alt2: "Efeito decorativo aplicado em parede",
-    },
-    impermeabilizacao: {
-      onNavigate: navigate,
-      title: "IMPERMEABILIZAÇÃO",
-      subtitle: "Proteja sua estrutura contra umidade e infiltrações com sistemas técnicos de última geração.",
-      heroImage: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Impermeabilização de laje",
-      heroColor: "#E05010",
-      description: "A impermeabilização adequada previne danos estruturais graves causados por umidade e infiltrações. Trabalhamos com sistemas de impermeabilização rígida e flexível para lajes, coberturas, banheiros, piscinas e subsolos.",
-      badge: "Proteção Estrutural",
-      items: [
-        "Impermeabilização de lajes e coberturas com manta asfáltica",
-        "Tratamento de banheiros e áreas molhadas",
-        "Impermeabilização de piscinas e reservatórios",
-        "Sistemas de drenagem e ventilação incluídos",
-        "Argamassas poliméricas de alta resistência",
-        "Garantia de 5 anos com laudo técnico",
-      ],
-      steps: [
-        { n: "01", title: "Inspeção", desc: "Mapeamento de todas as fontes de umidade e infiltração" },
-        { n: "02", title: "Preparação", desc: "Limpeza, primer e regularização do substrato" },
-        { n: "03", title: "Aplicação", desc: "Sistemas impermeabilizantes em camadas certificadas" },
-        { n: "04", title: "Teste", desc: "Prova d'água obrigatória e emissão de laudo técnico" },
-      ],
-      image2: "https://images.unsplash.com/photo-1487611273011-2da4a7b0fe88?w=700&h=500&fit=crop&auto=format",
-      alt2: "Aplicação de impermeabilizante em laje",
-    },
-    texturas: {
-      onNavigate: navigate,
-      title: "TEXTURAS & GRAFIATO",
-      subtitle: "Superfícies com personalidade, profundidade e resistência incomparável.",
-      heroImage: "https://images.unsplash.com/photo-1582913130019-04e2c81cad76?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Textura aplicada em parede",
-      heroColor: "#C85A00",
-      description: "Texturas acrílicas e grafiato oferecem durabilidade superior às tintas convencionais, além de criar superfícies com toque artesanal e visual tridimensional. Ideais para fachadas e ambientes que exigem personalidade.",
-      badge: "Fachadas & Interiores",
-      items: [
-        "Textura acrílica rolada, projetada ou desempenada",
-        "Grafiato rústico e grafiato fino",
-        "Textura pedra mineira e canjiquinha",
-        "Proteção superior a tintas convencionais",
-        "Resistência a rachaduras e impactos leves",
-        "Grande variedade de cores e padrões",
-      ],
-      steps: [
-        { n: "01", title: "Escolha", desc: "Definição do padrão e granulometria com o cliente" },
-        { n: "02", title: "Base", desc: "Preparação e selagem adequada da superfície" },
-        { n: "03", title: "Aplicação", desc: "Projeção ou rolagem por técnicos especializados" },
-        { n: "04", title: "Acabamento", desc: "Regularização final e selagem protetora" },
-      ],
-      image2: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=700&h=500&fit=crop&auto=format",
-      alt2: "Detalhe de textura aplicada em parede",
-    },
-    vernizes: {
-      onNavigate: navigate,
-      title: "VERNIZES & ESMALTES",
-      subtitle: "Brilho, proteção e durabilidade para madeiras, metais e superfícies nobres.",
-      heroImage: "https://images.unsplash.com/photo-1562663474-6cbb3eaa4d14?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Aplicação de verniz em madeira",
-      heroColor: "#D4181B",
-      description: "Vernizes e esmaltes sintéticos e à base d'água para madeira e metal com acabamento brilhante, semibrilhante ou fosco. Resaltamos a beleza natural dos materiais enquanto protegemos contra desgaste, umidade e corrosão.",
-      badge: "Madeiras & Metais",
-      items: [
-        "Verniz sintético e PU de alto brilho",
-        "Esmalte sintético e à base d'água para metais",
-        "Tratamento antioxidante para ferragens e grades",
-        "Lixamento e preparação incluídos no serviço",
-        "Preservação e realce do veio da madeira",
-        "Acabamento fosco, semibrilhante e brilhante",
-      ],
-      steps: [
-        { n: "01", title: "Avaliação", desc: "Estado das superfícies e escolha do sistema correto" },
-        { n: "02", title: "Lixamento", desc: "Preparação mecânica para aderência perfeita" },
-        { n: "03", title: "Aplicação", desc: "Fundo, intermediário e acabamento em camadas" },
-        { n: "04", title: "Polimento", desc: "Polimento final para acabamento espelhado" },
-      ],
-      image2: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=700&h=500&fit=crop&auto=format",
-      alt2: "Resultado final de verniz em madeira",
-    },
-    industrial: {
-      onNavigate: navigate,
-      title: "PINTURA INDUSTRIAL",
-      subtitle: "Proteção técnica para estruturas metálicas, galpões, silos e grandes obras industriais.",
-      heroImage: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Pintura industrial em estrutura metálica",
-      heroColor: "#A01530",
-      description: "A pintura industrial exige sistemas técnicos específicos para proteger grandes estruturas contra corrosão, agentes químicos e desgaste mecânico. Nossa equipe é certificada em trabalho em altura e jato abrasivo.",
-      badge: "Galpões & Estruturas",
-      items: [
-        "Tratamento anticorrosivo com primer epóxi",
-        "Sistemas de pintura de alto desempenho (Epóxi, PU)",
-        "Jato abrasivo e hidrojato para preparação",
-        "Pintura de galpões, silos, pontes e tanques",
-        "Equipe certificada NR-35 (trabalho em altura)",
-        "Laudos técnicos e acompanhamento de engenheiro",
-      ],
-      steps: [
-        { n: "01", title: "Projeto", desc: "Elaboração de memorial descritivo com engenheiro responsável" },
-        { n: "02", title: "Jato", desc: "Preparação superficial por jato abrasivo grau Sa 2,5" },
-        { n: "03", title: "Pintura", desc: "Aplicação do sistema de proteção em camadas definidas" },
-        { n: "04", title: "Inspeção", desc: "Medição de espessura de filme seco e laudo final" },
-      ],
-      image2: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&h=500&fit=crop&auto=format",
-      alt2: "Estrutura metálica com pintura industrial",
-    },
-    consultoria: {
-      onNavigate: navigate,
-      title: "CONSULTORIA DE CORES",
-      subtitle: "Harmonia cromática especializada para criar ambientes que comunicam e emocionam.",
-      heroImage: "https://images.unsplash.com/photo-1614846027182-cecb07ceb4a4?w=1600&h=900&fit=crop&auto=format",
-      heroAlt: "Paletas de cores para consultoria",
-      heroColor: "#F5A000",
-      description: "Nossa consultoria de cores é conduzida por coloristas certificadas que analisam a iluminação, o estilo de vida e os objetivos de cada cliente para criar uma paleta cromática harmônica e funcional.",
-      badge: "Design & Cromática",
-      items: [
-        "Análise da iluminação natural e artificial do ambiente",
-        "Projeto cromático completo com referências de produtos",
-        "Testes de cor em painéis físicos no local",
-        "Harmonização entre paredes, móveis e revestimentos",
-        "Apresentação de renders 3D com as cores definidas",
-        "Acompanhamento na execução final da pintura",
-      ],
-      steps: [
-        { n: "01", title: "Briefing", desc: "Entendimento do estilo, cores favoritas e objetivos do espaço" },
-        { n: "02", title: "Análise", desc: "Visita técnica para avaliar iluminação e arquitetura" },
-        { n: "03", title: "Proposta", desc: "Apresentação de paleta cromática e render digital" },
-        { n: "04", title: "Execução", desc: "Acompanhamento da pintura para garantia do resultado" },
-      ],
-      image2: "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?w=700&h=500&fit=crop&auto=format",
-      alt2: "Consultora de cores analisando amostras",
-    },
-  };
-
   const renderPage = () => {
-    if (page === "home") return <PageHome onNavigate={navigate} />;
-    if (page === "contato") return <PageContato onNavigate={navigate} />;
-    const sp = servicePages[page as keyof typeof servicePages];
-    if (sp) return <ServicePage {...sp} />;
-    return <PageHome onNavigate={navigate} />;
+    switch (page) {
+      case "home":      return <PageHome      onNav={onNav} />;
+      case "sobre":     return <PageSobre     onNav={onNav} />;
+      case "servicos":  return <PageServicos  onNav={onNav} />;
+      case "efeitos":   return <PageEfeitos   onNav={onNav} />;
+      case "epoxi":     return <PageEpoxi     onNav={onNav} />;
+      case "galeria":   return <PageGaleria   onNav={onNav} />;
+      case "portfolio": return <PagePortfolio onNav={onNav} />;
+      case "insta":     return <PageInsta     onNav={onNav} />;
+      case "orcamento": return <PageOrcamento onNav={onNav} />;
+      case "contato":   return <PageContato   onNav={onNav} />;
+      default:          return <PageHome      onNav={onNav} />;
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
-      <Navbar current={page} onNavigate={navigate} />
+      <Navbar current={page} onNav={onNav} />
       <main className="flex-1 pt-16">
         {renderPage()}
       </main>
-      <Footer onNavigate={navigate} />
+      <Footer onNav={onNav} />
+      <WAFloat />
     </div>
   );
 }
